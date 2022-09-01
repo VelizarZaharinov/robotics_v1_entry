@@ -19,7 +19,7 @@ def main():  # pylint: disable=missing-function-docstring
     
     #NOTE: data loading could take at least several seconds with big test files
     input_images, output_images = fp.generate_io_data(input_file_name, output_file_name, image_type)
-    
+
     compute_solution(input_images)
     
     if input_images == output_images:

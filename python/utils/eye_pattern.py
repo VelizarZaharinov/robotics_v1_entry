@@ -35,3 +35,21 @@ EYE_PATTERN_4: EyePattern = (
   "|/ \\|",
   "\\---/"
 )
+
+all_eye_patterns = [EYE_PATTERN_1,
+                    EYE_PATTERN_2,
+                    EYE_PATTERN_3,
+                    EYE_PATTERN_4]
+
+def pattern_to_int(pattern):
+    int_pattern = []
+    for y in range(len(pattern)):
+        int_pattern.append([])
+        for x in range(len(pattern[y])):
+            if pattern[y][x]==' ':
+                int_pattern[y].append(0)
+            else:
+                int_pattern[y].append(1)
+
+    return int_pattern
+        
