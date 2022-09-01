@@ -8,7 +8,7 @@ class RedEyeRemoval:
         self.pattern_bbox = self.calc_pattern_bbox(self.pattern)
 
     # Find the rectangular area's dimensions inside which the pattern is.
-    # The given patterns are 5x5 but for future expansion in maind this
+    # The given patterns are 5x5 but for future expansion in mind this
     # is not hard coded.
     def calc_pattern_bbox(self, pattern):
         pattern_width = len(pattern[0])
