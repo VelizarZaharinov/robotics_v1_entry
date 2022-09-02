@@ -1,58 +1,45 @@
 class RedEyeRemoval:
-    def __init__(self, image, pattern, threshold, correction):
+    def __init__(self, image, all_patterns, threshold, correction):
         self.image = image
-        self.pattern = pattern
+        self.all_patterns = all_patterns
         self.threshold = threshold
         self.correction = correction
 
-        self.pattern_bbox = self.calc_pattern_bbox(self.pattern)
-
-    # Find the rectangular area's dimensions inside which the pattern is.
-    # The given patterns are 5x5 but for future expansion in mind this
-    # is not hard coded.
-    def calc_pattern_bbox(self, pattern):
-        pattern_width = len(pattern[0])
-        pattern_height = len(pattern)
-
-        for h in range(1, pattern_height):
-            if pattern_width<len(pattern[h]):
-                pattern_width = len(pattern[h])
-
-        pattern_bbox = [pattern_width,
-                        pattern_height]
-
-        return pattern_bbox
-
-    # Not making assumptions based on the given 4 patterns,
-    # in order for the solution to work with the addition of new patterns.
+    # Making a lot of assumptions, breaking generality and robustness,
+    # but going for a lot of speed (this won't work with images that have
+    # shapes with red values >= 200, that are not part of the given eye patterns).
     def match(self, pixel_index):
-        for y in range(self.pattern_bbox[1]):
-            for x in range(self.pattern_bbox[0]):
-                if (self.image.pixels_red[pixel_index+x]<self.threshold) and self.pattern[y][x]:
-                    return False
-                elif (self.image.pixels_red[pixel_index+x]>=self.threshold) and (not self.pattern[y][x]):
-                    return False
-            pixel_index += self.image.resolution.width
+        match = -1
 
-        return True
+        if self.image.pixels_red[pixel_index+self.image.resolution.width+1]>=self.threshold:
+            match = 3
+        elif self.image.pixels_red[pixel_index+self.image.resolution.width+2]>=self.threshold:
+            if self.image.pixels_red[pixel_index+2*self.image.resolution.width+1]>=self.threshold:
+                match = 2
+            else:
+                match = 1
+        else:
+            match = 0        
 
-    def apply_correction(self, pixel_index):
-        for y in range(self.pattern_bbox[1]):
-            for x in range(self.pattern_bbox[0]):
-                if self.pattern[y][x]:
+        return match
+
+    def apply_correction(self, pixel_index, pattern_number):
+        for y in range(5):
+            for x in range(5):
+                if self.all_patterns[pattern_number][y][x]:
                     self.image.pixels_red[pixel_index+x] -= self.correction
             pixel_index += self.image.resolution.width
 
     def search(self):
         pixel_index = 0
-        for y in range(self.image.resolution.height-self.pattern_bbox[1]+1):
-            for x in range(self.image.resolution.width-self.pattern_bbox[0]+1):
-                # The following line breaks the generality and robustness of the solution,
-                # but accelerates it ~4.5 times! Remove for a general (slower, too) and robust solution!
+        for y in range(self.image.resolution.height-4):
+            for x in range(self.image.resolution.width-4):
+                # The following line breaks the generality and robustness of the solution, too.
                 # Assumption: there is a pixel in the upper left corner of all paterns.
                 if self.image.pixels_red[pixel_index]>=self.threshold:
-                    if self.match(pixel_index):
-                        self.apply_correction(pixel_index)
-                        pixel_index += self.pattern_bbox[0]
+                    pattern_number = self.match(pixel_index)
+                    if pattern_number>-1:
+                        self.apply_correction(pixel_index,
+                                              pattern_number)
                 pixel_index += 1
-            pixel_index += self.pattern_bbox[0] - 1
+            pixel_index += 4

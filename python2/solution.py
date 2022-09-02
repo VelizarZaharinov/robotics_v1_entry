@@ -28,12 +28,11 @@ def compute_solution(images: List[Union[PackedImage, StrideImage]]):
 
     # Search for patterns and correct red eyes
     for i in range(len(images)):
-        for p in range(len(all_eye_patterns_int)):
-            comparator = cmp.RedEyeRemoval(images[i],
-                                           all_eye_patterns_int[p],
-                                           200,
-                                           150)
-            comparator.search()
-            images[i] = comparator.image
+        comparator = cmp.RedEyeRemoval(images[i],
+                                       all_eye_patterns_int,
+                                       200,
+                                       150)
+        comparator.search()
+        images[i] = comparator.image
     del ft
             

@@ -47,12 +47,13 @@ class RedEyeRemoval:
         pixel_index = 0
         for y in range(self.image.resolution.height-self.pattern_bbox[1]+1):
             for x in range(self.image.resolution.width-self.pattern_bbox[0]+1):
-                # The following line breaks the generality and robustness of the solution,
-                # but accelerates it ~4.5 times! Remove for a general (slower, too) and robust solution!
-                # Assumption: there is a pixel in the upper left corner of all paterns.
+                # The following line (if statement) breaks the generality
+                # and robustness of the solution, but accelerates it significantly! (~5 times!)
+                # Remove to make it the most general and robust, but decrease performance.
+                # Assumption: there is a pixel in the upper left corner
+                # of all paterns.
                 if self.image.pixels_red[pixel_index]>=self.threshold:
                     if self.match(pixel_index):
                         self.apply_correction(pixel_index)
-                        pixel_index += self.pattern_bbox[0]
                 pixel_index += 1
             pixel_index += self.pattern_bbox[0] - 1
